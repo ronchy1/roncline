@@ -6,8 +6,10 @@ import {
 	UiServiceClient,
 	FileServiceClient,
 	McpServiceClient,
+	AccountServiceClient,
 } from "../services/grpc-client"
 import { EmptyRequest, StringRequest } from "@shared/proto/common"
+import { FormLoginRequest } from "@shared/proto/account"
 import { UpdateSettingsRequest } from "@shared/proto/state"
 import { WebviewProviderType as WebviewProviderTypeEnum, WebviewProviderTypeRequest } from "@shared/proto/ui"
 import { TerminalProfile } from "@shared/proto/state"
@@ -41,6 +43,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean
 	showWelcome: boolean
 	theme: Record<string, string> | undefined
+	formLoginClicked: (request: { authEndpoint: string; username: string; password: string }) => Promise<{ accessToken: string }>
 	openRouterModels: Record<string, ModelInfo>
 	openAiModels: string[]
 	requestyModels: Record<string, ModelInfo>
@@ -651,8 +654,32 @@ export const ExtensionStateContextProvider: React.FC<{
 			.catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error))
 	}, [])
 
+	const formLoginClicked = useCallback(async (request: { authEndpoint: string; username: string; password: string }) => {
+		try {
+			const response = await AccountServiceClient.formLoginClicked(
+				FormLoginRequest.create({
+					authEndpoint: request.authEndpoint,
+					username: request.username,
+					password: request.password,
+				}),
+			)
+
+			// Standardize on accessToken naming
+			const accessToken = response.access_token || response.accessToken
+			if (!accessToken) {
+				throw new Error("No access token received")
+			}
+
+			return { accessToken }
+		} catch (error) {
+			console.error("Login failed:", error)
+			throw new Error(error instanceof Error ? error.message : "Login failed")
+		}
+	}, [])
+
 	const contextValue: ExtensionStateContextType = {
 		...state,
+		formLoginClicked,
 		accessToken: state.accessToken || null, // Ensure accessToken is included
 		authEndpoint: state.authEndpoint || null, // Ensure authEndpoint is included
 		didHydrateState,

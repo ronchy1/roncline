@@ -29,7 +29,7 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
-	const { authEndpoint } = useExtensionState()
+	const { authEndpoint, formLoginClicked } = useExtensionState()
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
 	const [error, setError] = useState("")
@@ -44,27 +44,19 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 			if (!authEndpoint) {
 				throw new Error("Authentication endpoint not configured")
 			}
-			const response = await fetch(`${authEndpoint}/login`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ username, password }),
-				credentials: "include", // For CORS with credentials
+			const { accessToken } = await formLoginClicked({
+				authEndpoint,
+				username,
+				password,
 			})
 
-			if (!response.ok) {
-				throw new Error(await response.text())
-			}
-
-			const data = await response.json()
-			if (data.accessToken) {
-				onLoginSuccess(data.accessToken)
-			} else {
-				throw new Error("Invalid response format")
-			}
+			// Call success handler
+			onLoginSuccess(accessToken)
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Login failed")
+			const message = err instanceof Error ? err.message : "Login failed"
+			setError(
+				message.includes("Failed to fetch") ? "Network error - please check your connection and auth endpoint" : message,
+			)
 		} finally {
 			setIsLoading(false)
 		}
