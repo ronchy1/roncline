@@ -11,6 +11,7 @@ import {
 import { EmptyRequest, StringRequest } from "@shared/proto/common"
 import { FormLoginRequest } from "@shared/proto/account"
 import { UpdateSettingsRequest } from "@shared/proto/state"
+import { UpdateMcpHeadersRequest } from "@shared/proto/mcp"
 import { WebviewProviderType as WebviewProviderTypeEnum, WebviewProviderTypeRequest } from "@shared/proto/ui"
 import { TerminalProfile } from "@shared/proto/state"
 import { convertProtoToClineMessage } from "@shared/proto-conversions/cline-message"
@@ -67,6 +68,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	setApiConfiguration: (config: ApiConfiguration) => void
 	setAccessToken: (token: string | null) => void
 	setAuthEndpoint: (authEndpoint: string | null) => void
+	updateMcpHeaders: (headers: { key: string; value: string }) => Promise<void>
 	setTelemetrySetting: (value: TelemetrySetting) => void
 	setShowAnnouncement: (value: boolean) => void
 	setShouldShowAnnouncement: (value: boolean) => void
@@ -654,6 +656,19 @@ export const ExtensionStateContextProvider: React.FC<{
 			.catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error))
 	}, [])
 
+	const updateMcpHeaders = useCallback(async (headers: { key: string; value: string }) => {
+		try {
+			await McpServiceClient.updateMcpHeaders(
+				UpdateMcpHeadersRequest.create({
+					headers: { [headers.key]: headers.value },
+				}),
+			)
+		} catch (error) {
+			console.error("Failed to update MCP headers:", error)
+			throw error
+		}
+	}, [])
+
 	const formLoginClicked = useCallback(async (request: { authEndpoint: string; username: string; password: string }) => {
 		try {
 			const response = await AccountServiceClient.formLoginClicked(
@@ -680,6 +695,7 @@ export const ExtensionStateContextProvider: React.FC<{
 	const contextValue: ExtensionStateContextType = {
 		...state,
 		formLoginClicked,
+		updateMcpHeaders,
 		accessToken: state.accessToken || null, // Ensure accessToken is included
 		authEndpoint: state.authEndpoint || null, // Ensure authEndpoint is included
 		didHydrateState,
