@@ -20,6 +20,7 @@ import { useEvent } from "react-use"
 import { Tab, TabContent, TabHeader, TabList, TabTrigger } from "../common/Tab"
 import FeatureSettingsSection from "./sections/FeatureSettingsSection"
 import SectionHeader from "./SectionHeader"
+import AuthEndpointSection from "./sections/AuthEndpointSection"
 import TerminalSettingsSection from "./sections/TerminalSettingsSection"
 import ApiConfigurationSection from "./sections/ApiConfigurationSection"
 import GeneralSettingsSection from "./sections/GeneralSettingsSection"
@@ -350,10 +351,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 							{/* Terminal Settings Tab */}
 							{activeTab === "terminal" && <TerminalSettingsSection renderSectionHeader={renderSectionHeader} />}
 
-							{/* Terminal Settings Tab */}
-							{activeTab === "authEndpoint" && (
-								<TerminalSettingsSection renderSectionHeader={renderSectionHeader} />
-							)}
+							{/* Authentication Endpoint Settings Tab */}
+							{activeTab === "authEndpoint" && <AuthEndpointSection renderSectionHeader={renderSectionHeader} />}
 
 							{/* Debug Tab (only in dev mode) */}
 							{IS_DEV && activeTab === "debug" && (
