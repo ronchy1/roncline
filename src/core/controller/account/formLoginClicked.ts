@@ -13,15 +13,16 @@ export async function formLoginClicked(controller: Controller, req: FormLoginReq
 			throw new Error("Invalid authentication endpoint URL")
 		}
 
+		const params = new URLSearchParams()
+		params.append("username", req.username)
+		params.append("password", req.password)
+
 		const response = await fetch(`${req.authEndpoint}`, {
 			method: "POST",
 			headers: {
-				"Content-Type": "application/json",
+				"Content-Type": "application/x-www-form-urlencoded",
 			},
-			body: JSON.stringify({
-				username: req.username,
-				password: req.password,
-			}),
+			body: params.toString(),
 		})
 
 		if (!response.ok) {
