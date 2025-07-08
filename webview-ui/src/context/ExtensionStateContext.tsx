@@ -23,7 +23,7 @@ import { DEFAULT_PLATFORM, ExtensionMessage, ExtensionState } from "@shared/Exte
 
 interface LocalExtensionState extends ExtensionState {
 	accessToken: string | null
-	authEndpoint: string | null
+	authEndpoint?: string
 }
 import { TelemetrySetting } from "@shared/TelemetrySetting"
 import { findLastIndex } from "@shared/array"
@@ -54,7 +54,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	totalTasksSize: number | null
 	availableTerminalProfiles: TerminalProfile[]
 	accessToken: string | null
-	authEndpoint: string | null
+	authEndpoint?: string
 
 	// View state
 	showMcp: boolean
@@ -203,7 +203,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		telemetrySetting: "unset",
 		distinctId: "",
 		accessToken: null,
-		authEndpoint: null,
+		authEndpoint: undefined,
 		planActSeparateModelsSetting: true,
 		enableCheckpointsSetting: true,
 		mcpRichDisplayEnabled: true,
@@ -290,7 +290,7 @@ export const ExtensionStateContextProvider: React.FC<{
 							const newState: LocalExtensionState = {
 								...stateData,
 								accessToken: prevState.accessToken, // Preserve accessToken
-								authEndpoint: prevState.authEndpoint,
+								authEndpoint: stateData.authEndpoint || prevState.authEndpoint,
 								autoApprovalSettings: shouldUpdateAutoApproval
 									? stateData.autoApprovalSettings
 									: prevState.autoApprovalSettings,
@@ -660,6 +660,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		try {
 			await McpServiceClient.updateMcpHeaders(
 				UpdateMcpHeadersRequest.create({
+					serverName: "default" as const,
 					headers: { [headers.key]: headers.value },
 				}),
 			)
@@ -697,7 +698,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		formLoginClicked,
 		updateMcpHeaders,
 		accessToken: state.accessToken || null, // Ensure accessToken is included
-		authEndpoint: state.authEndpoint || null, // Ensure authEndpoint is included
+		authEndpoint: state.authEndpoint, // Ensure authEndpoint is included
 		didHydrateState,
 		showWelcome,
 		theme,
@@ -748,7 +749,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		setAuthEndpoint: (value) =>
 			setState((prevState) => ({
 				...prevState,
-				authEndpoint: value,
+				authEndpoint: value || undefined,
 			})),
 		setTelemetrySetting: (value) =>
 			setState((prevState) => ({
