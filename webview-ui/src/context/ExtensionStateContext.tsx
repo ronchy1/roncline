@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
-import { useEvent } from "react-use"
+import "../../../src/shared/webview/types"
 import {
 	StateServiceClient,
 	ModelsServiceClient,
@@ -9,9 +9,7 @@ import {
 	AccountServiceClient,
 } from "../services/grpc-client"
 import { EmptyRequest, StringRequest } from "@shared/proto/common"
-import { FormLoginRequest } from "@shared/proto/account"
 import { UpdateSettingsRequest } from "@shared/proto/state"
-import { UpdateMcpHeadersRequest } from "@shared/proto/mcp"
 import { WebviewProviderType as WebviewProviderTypeEnum, WebviewProviderTypeRequest } from "@shared/proto/ui"
 import { TerminalProfile } from "@shared/proto/state"
 import { convertProtoToClineMessage } from "@shared/proto-conversions/cline-message"
@@ -20,11 +18,6 @@ import { DEFAULT_AUTO_APPROVAL_SETTINGS } from "@shared/AutoApprovalSettings"
 import { DEFAULT_BROWSER_SETTINGS, BrowserSettings } from "@shared/BrowserSettings"
 import { ChatSettings, DEFAULT_CHAT_SETTINGS } from "@shared/ChatSettings"
 import { DEFAULT_PLATFORM, ExtensionMessage, ExtensionState } from "@shared/ExtensionMessage"
-
-interface LocalExtensionState extends ExtensionState {
-	accessToken: string | null
-	authEndpoint?: string
-}
 import { TelemetrySetting } from "@shared/TelemetrySetting"
 import { findLastIndex } from "@shared/array"
 import {
@@ -40,11 +33,13 @@ import { convertTextMateToHljs } from "../utils/textMateToHljs"
 import { OpenRouterCompatibleModelInfo } from "@shared/proto/models"
 import { UserInfo } from "@shared/proto/account"
 
+import { FormLoginRequest } from "@shared/proto/account"
+import { UpdateMcpHeadersRequest } from "@shared/proto/mcp"
+
 interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean
 	showWelcome: boolean
 	theme: Record<string, string> | undefined
-	formLoginClicked: (request: { authEndpoint: string; username: string; password: string }) => Promise<{ accessToken: string }>
 	openRouterModels: Record<string, ModelInfo>
 	openAiModels: string[]
 	requestyModels: Record<string, ModelInfo>
@@ -66,9 +61,6 @@ interface ExtensionStateContextType extends ExtensionState {
 
 	// Setters
 	setApiConfiguration: (config: ApiConfiguration) => void
-	setAccessToken: (token: string | null) => void
-	setAuthEndpoint: (authEndpoint: string | null) => void
-	updateMcpHeaders: (headers: { key: string; value: string }) => Promise<void>
 	setTelemetrySetting: (value: TelemetrySetting) => void
 	setShowAnnouncement: (value: boolean) => void
 	setShouldShowAnnouncement: (value: boolean) => void
@@ -94,6 +86,9 @@ interface ExtensionStateContextType extends ExtensionState {
 	setTotalTasksSize: (value: number | null) => void
 	setAvailableTerminalProfiles: (profiles: TerminalProfile[]) => void // Setter for profiles
 	setBrowserSettings: (value: BrowserSettings) => void
+	setAccessToken: (token: string | null) => void
+	setAuthEndpoint: (authEndpoint: string | null) => void
+	updateMcpHeaders: (headers: { key: string; value: string }) => Promise<void>
 
 	// Refresh functions
 	refreshOpenRouterModels: () => void
@@ -119,6 +114,8 @@ interface ExtensionStateContextType extends ExtensionState {
 
 	// Event callbacks
 	onRelinquishControl: (callback: () => void) => () => void
+
+	formLoginClicked: (request: { authEndpoint: string; username: string; password: string }) => Promise<{ accessToken: string }>
 }
 
 const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -191,7 +188,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		setShowAccount(false)
 	}, [setShowSettings, closeMcpView, setShowHistory, setShowAccount])
 
-	const [state, setState] = useState<LocalExtensionState>({
+	const [state, setState] = useState<ExtensionState>({
 		version: "",
 		clineMessages: [],
 		taskHistory: [],
@@ -202,8 +199,6 @@ export const ExtensionStateContextProvider: React.FC<{
 		platform: DEFAULT_PLATFORM,
 		telemetrySetting: "unset",
 		distinctId: "",
-		accessToken: null,
-		authEndpoint: undefined,
 		planActSeparateModelsSetting: true,
 		enableCheckpointsSetting: true,
 		mcpRichDisplayEnabled: true,
@@ -220,6 +215,8 @@ export const ExtensionStateContextProvider: React.FC<{
 		isNewUser: false,
 		welcomeViewCompleted: false,
 		mcpResponsesCollapsed: false, // Default value (expanded), will be overwritten by extension state
+		accessToken: undefined,
+		authEndpoint: undefined,
 	})
 	const [didHydrateState, setDidHydrateState] = useState(false)
 	const [showWelcome, setShowWelcome] = useState(false)
@@ -270,9 +267,8 @@ export const ExtensionStateContextProvider: React.FC<{
 
 	// Subscribe to state updates and UI events using the gRPC streaming API
 	useEffect(() => {
-		// Determine the webview provider type
-		const webviewType =
-			window.WEBVIEW_PROVIDER_TYPE === "sidebar" ? WebviewProviderTypeEnum.SIDEBAR : WebviewProviderTypeEnum.TAB
+		// Use the already defined webview provider type
+		const webviewType = currentProviderType
 
 		// Set up state subscription
 		stateSubscriptionRef.current = StateServiceClient.subscribeToState(EmptyRequest.create({}), {
@@ -287,7 +283,7 @@ export const ExtensionStateContextProvider: React.FC<{
 							const currentVersion = prevState.autoApprovalSettings?.version ?? 1
 							const shouldUpdateAutoApproval = incomingVersion > currentVersion
 
-							const newState: LocalExtensionState = {
+							const newState = {
 								...stateData,
 								accessToken: prevState.accessToken, // Preserve accessToken
 								authEndpoint: stateData.authEndpoint || prevState.authEndpoint,
@@ -644,18 +640,6 @@ export const ExtensionStateContextProvider: React.FC<{
 		}
 	}, [])
 
-	const refreshOpenRouterModels = useCallback(() => {
-		ModelsServiceClient.refreshOpenRouterModels(EmptyRequest.create({}))
-			.then((response: OpenRouterCompatibleModelInfo) => {
-				const models = response.models
-				setOpenRouterModels({
-					[openRouterDefaultModelId]: openRouterDefaultModelInfo, // in case the extension sent a model list without the default model
-					...models,
-				})
-			})
-			.catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error))
-	}, [])
-
 	const updateMcpHeaders = useCallback(async (headers: { key: string; value: string }) => {
 		try {
 			await McpServiceClient.updateMcpHeaders(
@@ -693,11 +677,23 @@ export const ExtensionStateContextProvider: React.FC<{
 		}
 	}, [])
 
+	const refreshOpenRouterModels = useCallback(() => {
+		ModelsServiceClient.refreshOpenRouterModels(EmptyRequest.create({}))
+			.then((response: OpenRouterCompatibleModelInfo) => {
+				const models = response.models
+				setOpenRouterModels({
+					[openRouterDefaultModelId]: openRouterDefaultModelInfo, // in case the extension sent a model list without the default model
+					...models,
+				})
+			})
+			.catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error))
+	}, [])
+
 	const contextValue: ExtensionStateContextType = {
 		...state,
 		formLoginClicked,
 		updateMcpHeaders,
-		accessToken: state.accessToken || null, // Ensure accessToken is included
+		accessToken: state.accessToken || "", // Ensure accessToken is included
 		authEndpoint: state.authEndpoint, // Ensure authEndpoint is included
 		didHydrateState,
 		showWelcome,

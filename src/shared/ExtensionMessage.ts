@@ -92,7 +92,8 @@ export interface ExtensionState {
 	localCursorRulesToggles: ClineRulesToggles
 	localWindsurfRulesToggles: ClineRulesToggles
 	mcpResponsesCollapsed?: boolean
-	authEndpoint?: string
+	accessToken?: string | null
+	authEndpoint?: string,
 }
 
 export interface ClineMessage {
