@@ -11,7 +11,8 @@ interface AuthEndpointSectionProps {
 }
 
 export const AuthEndpointSection: React.FC<AuthEndpointSectionProps> = ({ renderSectionHeader }) => {
-	const { authEndpoint, setAuthEndpoint } = useExtensionState()
+	const { authEndpoint } = useExtensionState()
+	//const { authEndpoint, setAuthEndpoint } = useExtensionState()
 
 	return (
 		<div>
@@ -20,14 +21,14 @@ export const AuthEndpointSection: React.FC<AuthEndpointSectionProps> = ({ render
 				<div id="auth-endpoint-section" style={{ marginBottom: 20 }}>
 					<div style={{ marginBottom: 15 }}>
 						<label style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
-							Octopus Authentication Endpoint
+							Octopus Authentication Endpoint: {authEndpoint}
 						</label>
 						<DebouncedTextField
 							initialValue={authEndpoint || ""}
 							placeholder="https://your-auth-endpoint.com"
 							style={{ width: "100%" }}
 							onChange={async (value) => {
-								setAuthEndpoint(value || null)
+								//setAuthEndpoint(value || null)
 								try {
 									await StateServiceClient.updateSettings(
 										UpdateSettingsRequest.create({

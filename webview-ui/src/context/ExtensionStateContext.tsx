@@ -67,7 +67,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	// Setters
 	setApiConfiguration: (config: ApiConfiguration) => void
 	setAccessToken: (token: string | null) => void
-	setAuthEndpoint: (authEndpoint: string | null) => void
+	setAuthEndpoint: (authEndpoint: string) => void
 	updateMcpHeaders: (headers: { key: string; value: string }) => Promise<void>
 	setTelemetrySetting: (value: TelemetrySetting) => void
 	setShowAnnouncement: (value: boolean) => void
@@ -203,7 +203,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		telemetrySetting: "unset",
 		distinctId: "",
 		accessToken: null,
-		authEndpoint: undefined,
+		authEndpoint: "",
 		planActSeparateModelsSetting: true,
 		enableCheckpointsSetting: true,
 		mcpRichDisplayEnabled: true,
@@ -749,7 +749,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		setAuthEndpoint: (value) =>
 			setState((prevState) => ({
 				...prevState,
-				authEndpoint: value || undefined,
+				authEndpoint: value || "",
 			})),
 		setTelemetrySetting: (value) =>
 			setState((prevState) => ({
@@ -840,6 +840,7 @@ export const ExtensionStateContextProvider: React.FC<{
 						mcpMarketplaceEnabled: state.mcpMarketplaceEnabled,
 						mcpRichDisplayEnabled: state.mcpRichDisplayEnabled,
 						mcpResponsesCollapsed: state.mcpResponsesCollapsed,
+						authEndpoint: state.authEndpoint,
 					}),
 				)
 			} catch (error) {
