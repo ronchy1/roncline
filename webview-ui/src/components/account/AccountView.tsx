@@ -116,10 +116,7 @@ export const ClineAccountView = () => {
 				<div className="flex flex-col items-center pr-3">
 					<ClineLogoWhite className="size-16 mb-4" />
 
-					<p style={{}}>
-						Sign up for an account to get access to the latest models, billing dashboard to view usage and credits,
-						and more upcoming features.
-					</p>
+					<p style={{}}>Login for accessing privileged tools in MCP server.</p>
 
 					<LoginForm onLoginSuccess={handleLoginSuccess} />
 				</div>
