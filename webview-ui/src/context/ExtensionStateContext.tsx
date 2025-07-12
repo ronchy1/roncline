@@ -34,7 +34,7 @@ import { OpenRouterCompatibleModelInfo } from "@shared/proto/models"
 import { UserInfo } from "@shared/proto/account"
 
 import { FormLoginRequest } from "@shared/proto/account"
-import { UpdateMcpHeadersRequest } from "@shared/proto/mcp"
+import { McpServers, UpdateMcpHeadersRequest } from "@shared/proto/mcp"
 
 interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean
@@ -647,20 +647,18 @@ export const ExtensionStateContextProvider: React.FC<{
 
 	const updateMcpHeaders = useCallback(async (headers: { key: string; value: string }) => {
 		try {
-			await McpServiceClient.updateMcpHeaders(
+			McpServiceClient.updateMcpHeaders(
 				UpdateMcpHeadersRequest.create({
 					serverName: "default" as const,
 					headers: { [headers.key]: headers.value },
 				}),
-			)
+			).then((response: McpServers) => {
+				McpServiceClient.restartMcpServer({
+					value: "default",
+				} as StringRequest)
 
-			// Make the gRPC call to restart
-			/*
-			McpServiceClient.restartMcpServer({
-				value: "default" as const,
-			} as StringRequest)
-
-			 */
+			})
+			
 		} catch (error) {
 			console.error("Failed to update MCP headers:", error)
 			throw error
