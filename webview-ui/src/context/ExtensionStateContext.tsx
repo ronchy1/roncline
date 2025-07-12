@@ -215,8 +215,8 @@ export const ExtensionStateContextProvider: React.FC<{
 		isNewUser: false,
 		welcomeViewCompleted: false,
 		mcpResponsesCollapsed: false, // Default value (expanded), will be overwritten by extension state
-		accessToken: undefined,
-		authEndpoint: undefined,
+		accessToken: "",
+		authEndpoint: "",
 	})
 	const [didHydrateState, setDidHydrateState] = useState(false)
 	const [showWelcome, setShowWelcome] = useState(false)
@@ -234,6 +234,9 @@ export const ExtensionStateContextProvider: React.FC<{
 	})
 	const [mcpServers, setMcpServers] = useState<McpServer[]>([])
 	const [mcpMarketplaceCatalog, setMcpMarketplaceCatalog] = useState<McpMarketplaceCatalog>({ items: [] })
+
+	// Set for authEndpoint
+	const [authEndpoint, setAuthEndpoint] = useState<string | undefined>("")
 
 	// References to store subscription cancellation functions
 	const stateSubscriptionRef = useRef<(() => void) | null>(null)
@@ -285,8 +288,8 @@ export const ExtensionStateContextProvider: React.FC<{
 
 							const newState = {
 								...stateData,
-								accessToken: prevState.accessToken, // Preserve accessToken
-								authEndpoint: stateData.authEndpoint || prevState.authEndpoint,
+								//accessToken: prevState.accessToken, // Preserve accessToken
+								//authEndpoint: stateData.authEndpoint || prevState.authEndpoint,
 								autoApprovalSettings: shouldUpdateAutoApproval
 									? stateData.autoApprovalSettings
 									: prevState.autoApprovalSettings,
@@ -296,6 +299,8 @@ export const ExtensionStateContextProvider: React.FC<{
 							setShowWelcome(!newState.welcomeViewCompleted)
 							setDidHydrateState(true)
 
+							// Set AuthEndpoint
+							setAuthEndpoint(newState.authEndpoint)
 							console.log("[DEBUG] returning new state in ESC")
 
 							return newState

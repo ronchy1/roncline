@@ -3,8 +3,7 @@ import React from "react"
 import { useExtensionState } from "../../../context/ExtensionStateContext"
 import { DebouncedTextField } from "../common/DebouncedTextField"
 import Section from "../Section"
-import { StateServiceClient } from "../../../services/grpc-client"
-import { UpdateSettingsRequest } from "@shared/proto/state"
+import { updateSetting } from "../utils/settingsHandlers"
 
 interface AuthEndpointSectionProps {
 	renderSectionHeader: (tabId: string) => JSX.Element | null
@@ -21,23 +20,15 @@ export const AuthEndpointSection: React.FC<AuthEndpointSectionProps> = ({ render
 				<div id="auth-endpoint-section" style={{ marginBottom: 20 }}>
 					<div style={{ marginBottom: 15 }}>
 						<label style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
-							Octopus Authentication Endpoint: {authEndpoint}
+							Authentication Endpoint: {authEndpoint}
 						</label>
 						<DebouncedTextField
 							initialValue={authEndpoint || ""}
 							placeholder="https://your-auth-endpoint.com"
 							style={{ width: "100%" }}
 							onChange={async (value) => {
-								//setAuthEndpoint(value || null)
-								try {
-									await StateServiceClient.updateSettings(
-										UpdateSettingsRequest.create({
-											authEndpoint: value || "",
-										}),
-									)
-								} catch (error) {
-									console.error("Failed to update auth endpoint:", error)
-								}
+								updateSetting("authEndpoint", value)
+								//setAuthEndpoint(value)
 							}}
 						/>
 						<p
