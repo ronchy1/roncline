@@ -56,7 +56,7 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 			await updateMcpHeaders({
 				key: "X-Octopus-Token",
 				value: accessToken,
-			})
+			}).then()
 
 			setSuccess("Login Succeeded")
 
@@ -75,6 +75,10 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full">
+			<div className="text-[var(--vscode-gitDecoration-addedResourceForeground)] mb-4 text-sm">
+				Using authentication endpoint: {authEndpoint}
+			</div>
+
 			<div className="mb-4">
 				<VSCodeTextField
 					value={username}
@@ -96,7 +100,7 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 			</div>
 			{success && (
 				<div className="text-[var(--vscode-gitDecoration-addedResourceForeground)] mb-4 text-sm">
-					{success} - Using authentication endpoint: {authEndpoint}
+					{success}
 				</div>
 			)}
 			{error && <div className="text-[var(--vscode-errorForeground)] mb-4">{error}</div>}

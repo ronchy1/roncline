@@ -4,17 +4,7 @@ import { StateServiceClient } from "@/services/grpc-client"
 import { ExtensionMessage } from "@shared/ExtensionMessage"
 import { PlanActMode, ResetStateRequest, TogglePlanActModeRequest } from "@shared/proto/state"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
-import {
-	CheckCheck,
-	FlaskConical,
-	Info,
-	LucideIcon,
-	Settings,
-	SquareMousePointer,
-	SquareTerminal,
-	SquareUserIcon,
-	Webhook,
-} from "lucide-react"
+import { CheckCheck, FlaskConical, Info, LucideIcon, Settings, SquareMousePointer, SquareTerminal, UserCheck, Webhook } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useEvent } from "react-use"
 import { Tab, TabContent, TabHeader, TabList, TabTrigger } from "../common/Tab"
@@ -89,7 +79,7 @@ export const SETTINGS_TABS: SettingsTab[] = [
 		name: "Auth Endpoint",
 		tooltipText: "Auth Endpoint",
 		headerText: "Auth Endpoint",
-		icon: SquareUserIcon,
+		icon: UserCheck,
 	},
 	// Only show in dev mode
 	...(IS_DEV

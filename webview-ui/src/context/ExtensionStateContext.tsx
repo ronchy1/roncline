@@ -650,9 +650,12 @@ export const ExtensionStateContextProvider: React.FC<{
 			)
 
 			// Make the gRPC call to restart
+			/*
 			McpServiceClient.restartMcpServer({
 				value: "default" as const,
 			} as StringRequest)
+
+			 */
 		} catch (error) {
 			console.error("Failed to update MCP headers:", error)
 			throw error
