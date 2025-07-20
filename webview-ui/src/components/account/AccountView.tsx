@@ -1,10 +1,6 @@
-import { VSCodeButton, VSCodeDivider, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
-import { memo, useEffect, useState } from "react"
-import VSCodeButtonLink from "../common/VSCodeButtonLink"
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import { memo } from "react"
 import ClineLogoWhite from "../../assets/ClineLogoWhite"
-import CountUp from "react-countup"
-import CreditsHistoryTable from "./CreditsHistoryTable"
-import { UsageTransaction, PaymentTransaction } from "@shared/ClineAccount"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import LoginForm from "./LoginForm"
 
