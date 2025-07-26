@@ -20,7 +20,6 @@ import { ChatSettings, DEFAULT_CHAT_SETTINGS } from "@shared/ChatSettings"
 import { DEFAULT_PLATFORM, ExtensionMessage, ExtensionState } from "@shared/ExtensionMessage"
 import { findLastIndex } from "@shared/array"
 import {
-	ApiConfiguration,
 	ModelInfo,
 	openRouterDefaultModelId,
 	openRouterDefaultModelInfo,
@@ -672,7 +671,7 @@ export const ExtensionStateContextProvider: React.FC<{
 			)
 
 			// Standardize on accessToken naming
-			const accessToken = response.access_token || response.accessToken
+			const accessToken = response.accessToken
 			if (!accessToken) {
 				throw new Error("No access token received")
 			}
