@@ -1,6 +1,6 @@
 import { Controller } from "../index"
 import fetch from "node-fetch"
-import { FormLoginRequest, LoginResponse } from "@shared/proto/account"
+import { FormLoginRequest, LoginResponse } from "@shared/proto/cline/account"
 
 /**
  * Handles form-based login by making a POST request to authEndpoint

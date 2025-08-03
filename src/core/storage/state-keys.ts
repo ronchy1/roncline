@@ -28,6 +28,7 @@ export type SecretKey =
 	| "sapAiCoreClientId"
 	| "sapAiCoreClientSecret"
 	| "groqApiKey"
+	| "huaweiCloudMaasApiKey"
 
 export type GlobalStateKey =
 	| "awsRegion"
@@ -83,7 +84,8 @@ export type GlobalStateKey =
 	| "sapAiResourceGroup"
 	| "claudeCodePath"
 	// Settings around plan/act and ephemeral model configuration
-	| "chatSettings"
+	| "preferredLanguage"
+	| "openaiReasoningEffort"
 	| "mode"
 	// Plan mode configurations
 	| "planModeApiProvider"
@@ -110,6 +112,8 @@ export type GlobalStateKey =
 	| "planModeGroqModelInfo"
 	| "planModeHuggingFaceModelId"
 	| "planModeHuggingFaceModelInfo"
+	| "planModeHuaweiCloudMaasModelId"
+	| "planModeHuaweiCloudMaasModelInfo"
 	// Act mode configurations
 	| "actModeApiProvider"
 	| "actModeApiModelId"
@@ -135,6 +139,8 @@ export type GlobalStateKey =
 	| "actModeGroqModelInfo"
 	| "actModeHuggingFaceModelId"
 	| "actModeHuggingFaceModelInfo"
+	| "actModeHuaweiCloudMaasModelId"
+	| "actModeHuaweiCloudMaasModelInfo"
 	| "authEndpoint"
 
 export type LocalStateKey = "localClineRulesToggles" | "localCursorRulesToggles" | "localWindsurfRulesToggles" | "workflowToggles"

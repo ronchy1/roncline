@@ -1,6 +1,6 @@
 import { convertMcpServersToProtoMcpServers } from "@/shared/proto-conversions/mcp/mcp-server-conversion"
 import { Controller } from ".."
-import { UpdateMcpHeadersRequest, McpServers } from "../../../shared/proto/mcp"
+import { UpdateMcpHeadersRequest, McpServers } from "../../../shared/proto/cline/mcp"
 
 /**
  * Updates the headers configuration for an MCP server.

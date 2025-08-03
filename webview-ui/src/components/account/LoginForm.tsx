@@ -1,7 +1,7 @@
 import { VSCodeButton, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { useState } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import { UpdateMcpHeadersRequest } from "@shared/proto/mcp"
+import { UpdateMcpHeadersRequest } from "@shared/proto/cline/mcp"
 
 interface ApiConfiguration {
 	clineApiKey?: string
