@@ -82,7 +82,6 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 			<div className="mb-4">
 				<VSCodeTextField
 					value={username}
-					onChange={(e) => setUsername((e.target as HTMLInputElement).value)}
 					placeholder="Username"
 					required
 					className="w-full"
@@ -92,7 +91,6 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 				<VSCodeTextField
 					type="password"
 					value={password}
-					onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
 					placeholder="Password"
 					required
 					className="w-full"
